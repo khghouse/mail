@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: mail
+
+  profiles:
+    active: local # default로 사용될 프로파일 명시
+    include: mail-account # 분리되어 있는 yml 포함
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+--- # 프로파일을 구분
+
+spring:
+  config:
+    activate:
+      on-profile: local # 해당 프로파일이 선택되었을 때만 활성화
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: test
