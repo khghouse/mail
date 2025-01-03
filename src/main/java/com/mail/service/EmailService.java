@@ -1,5 +1,6 @@
 package com.mail.service;
 
+import com.mail.request.EmailServiceRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -20,6 +21,16 @@ public class EmailService {
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);
+        message.setFrom(from);
+
+        javaMailSender.send(message);
+    }
+
+    public void sendEmail(EmailServiceRequest request) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(request.getTo());
+        message.setSubject(request.getSubject());
+        message.setText(request.getText());
         message.setFrom(from);
 
         javaMailSender.send(message);
