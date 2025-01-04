@@ -25,19 +25,7 @@ public class EmailServiceTest {
         String subject = "메일 발송 기능 테스트";
         String text = "메일 내용이 잘 전달됐나요?";
 
-        // when
-        emailService.sendEmail(to, subject, text);
-    }
-
-    @Test
-    @DisplayName("메일을 정상 발송한다.")
-    void sendEmailByRequest() {
-        // given
-        EmailServiceRequest request = EmailServiceRequest.builder()
-                .to("khghouse@naver.com")
-                .subject("메일 발송 기능 테스트")
-                .text("메일 내용이 잘 전달됐나요?")
-                .build();
+        EmailServiceRequest request = EmailServiceRequest.of(to, subject, text);
 
         // when
         emailService.sendEmail(request);
@@ -47,11 +35,11 @@ public class EmailServiceTest {
     @DisplayName("유효하지 않은 이메일 주소라면 예외가 발생한다.")
     void sendEmailInvalidID() {
         // given
-        EmailServiceRequest request = EmailServiceRequest.builder()
-                .to("khghouse@naver..com")
-                .subject("메일 발송 기능 테스트")
-                .text("메일 내용이 잘 전달됐나요?")
-                .build();
+        String to = "khghouse@naver..com";
+        String subject = "메일 발송 기능 테스트";
+        String text = "메일 내용이 잘 전달됐나요?";
+
+        EmailServiceRequest request = EmailServiceRequest.of(to, subject, text);
 
         // when, then
         assertThatThrownBy(() -> emailService.sendEmail(request))
