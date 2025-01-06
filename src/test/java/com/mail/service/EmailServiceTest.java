@@ -7,10 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Map;
+
+import static com.mail.service.EmailService.MAIL_TEMPLATE_DIRECTORY;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
-// @SpringBootTest(args = "--spring.mail.username=invalid-email@gmail.com")
 @ActiveProfiles("test")
 public class EmailServiceTest {
 
@@ -23,9 +25,10 @@ public class EmailServiceTest {
         // given
         String to = "khghouse@naver.com";
         String subject = "메일 발송 기능 테스트";
-        String text = "메일 내용이 잘 전달됐나요?";
+        String templateName = MAIL_TEMPLATE_DIRECTORY + "welcome";
+        Map<String, Object> variables = Map.of("id", "khghouse");
 
-        EmailServiceRequest request = EmailServiceRequest.of(to, subject, text);
+        EmailServiceRequest request = EmailServiceRequest.of(to, subject, templateName, variables);
 
         // when
         emailService.sendEmail(request);
@@ -37,30 +40,29 @@ public class EmailServiceTest {
         // given
         String to = "khghouse@naver..com";
         String subject = "메일 발송 기능 테스트";
-        String text = "메일 내용이 잘 전달됐나요?";
+        String templateName = MAIL_TEMPLATE_DIRECTORY + "welcome";
+        Map<String, Object> variables = Map.of("id", "khghouse");
 
-        EmailServiceRequest request = EmailServiceRequest.of(to, subject, text);
+        EmailServiceRequest request = EmailServiceRequest.of(to, subject, templateName, variables);
 
         // when, then
         assertThatThrownBy(() -> emailService.sendEmail(request))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessage("잘못된 이메일 주소 또는 본문 파싱에 실패했습니다.");
+                .hasMessage("메일 발송에 실패했습니다.");
     }
 
     @Test
-    @DisplayName("유효하지 않은 SMTP 계정이라면 예외가 발생한다.")
-    void sendEmailInvalidUsername() {
+    @DisplayName("메일 템플릿 안, 변수가 바인딩 되지 않더라도 디폴트 값을 출력한다.")
+    void sendEmailNotVariables() {
         // given
         String to = "khghouse@naver.com";
         String subject = "메일 발송 기능 테스트";
-        String text = "메일 내용이 잘 전달됐나요?";
+        String templateName = MAIL_TEMPLATE_DIRECTORY + "welcome";
 
-        EmailServiceRequest request = EmailServiceRequest.of(to, subject, text);
+        EmailServiceRequest request = EmailServiceRequest.of(to, subject, templateName, null);
 
-        // when, then
-        assertThatThrownBy(() -> emailService.sendEmail(request))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("SMTP 서버 인증에 실패했습니다.");
+        // when
+        emailService.sendEmail(request);
     }
 
 }
