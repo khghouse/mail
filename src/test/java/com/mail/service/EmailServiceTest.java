@@ -1,15 +1,16 @@
 package com.mail.service;
 
+import com.mail.enumeration.EmailTemplate;
 import com.mail.request.EmailServiceRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.thymeleaf.exceptions.TemplateInputException;
 
 import java.util.Map;
 
-import static com.mail.service.EmailService.MAIL_TEMPLATE_DIRECTORY;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
@@ -24,8 +25,8 @@ public class EmailServiceTest {
     void sendEmail() {
         // given
         String to = "khghouse@naver.com";
-        String subject = "메일 발송 기능 테스트";
-        String templateName = MAIL_TEMPLATE_DIRECTORY + "welcome";
+        String subject = "회원 가입을 축하합니다.";
+        String templateName = EmailTemplate.JOIN.getTemplateName();
         Map<String, Object> variables = Map.of("id", "khghouse");
 
         EmailServiceRequest request = EmailServiceRequest.of(to, subject, templateName, variables);
@@ -39,8 +40,8 @@ public class EmailServiceTest {
     void sendEmailInvalidTo() {
         // given
         String to = "khghouse@naver..com";
-        String subject = "메일 발송 기능 테스트";
-        String templateName = MAIL_TEMPLATE_DIRECTORY + "welcome";
+        String subject = "회원 가입을 축하합니다.";
+        String templateName = EmailTemplate.JOIN.getTemplateName();
         Map<String, Object> variables = Map.of("id", "khghouse");
 
         EmailServiceRequest request = EmailServiceRequest.of(to, subject, templateName, variables);
@@ -56,13 +57,29 @@ public class EmailServiceTest {
     void sendEmailNotVariables() {
         // given
         String to = "khghouse@naver.com";
-        String subject = "메일 발송 기능 테스트";
-        String templateName = MAIL_TEMPLATE_DIRECTORY + "welcome";
+        String subject = "회원 가입을 축하합니다.";
+        String templateName = EmailTemplate.JOIN.getTemplateName();
 
         EmailServiceRequest request = EmailServiceRequest.of(to, subject, templateName, null);
 
         // when
         emailService.sendEmail(request);
+    }
+    
+    @Test
+    @DisplayName("존재하지 않는 메일 템플릿 파일을 선택할 경우 예외가 발생한다.")
+    void sendEmailNotTemplate() {
+        // given
+        String to = "khghouse@naver.com";
+        String subject = "회원 가입을 축하합니다.";
+        String templateName = EmailTemplate.JOIN.getTemplateName() + "e";
+        Map<String, Object> variables = Map.of("id", "khghouse");
+
+        EmailServiceRequest request = EmailServiceRequest.of(to, subject, templateName, variables);
+
+        // when, then
+        assertThatThrownBy(() -> emailService.sendEmail(request))
+                .isInstanceOf(TemplateInputException.class);
     }
 
 }

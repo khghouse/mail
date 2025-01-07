@@ -19,8 +19,6 @@ import org.thymeleaf.context.Context;
 @RequiredArgsConstructor
 public class EmailService {
 
-    public static final String MAIL_TEMPLATE_DIRECTORY = "/mail/";
-
     @Value("${spring.mail.username}")
     private String from;
 
