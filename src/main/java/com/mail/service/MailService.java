@@ -1,6 +1,7 @@
 package com.mail.service;
 
-import com.mail.request.EmailServiceRequest;
+import com.mail.enumeration.MailTemplate;
+import com.mail.request.JoinMailRequest;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +15,13 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EmailService {
+public class MailService {
 
     @Value("${spring.mail.username}")
     private String from;
@@ -25,22 +29,26 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
 
-    public void sendEmail(EmailServiceRequest request) {
+    public void sendJoinMail(JoinMailRequest joinMailRequest) {
+        Map<String, Object> variables = this.createMapFromNonNullValues("id", joinMailRequest.getId());
+        this.send(MailTemplate.JOIN, joinMailRequest.getTo(), variables);
+    }
 
+    private void send(MailTemplate mailTemplate, String to, Map<String, Object> variables) {
         Context context = new Context();
-        context.setVariables(request.getVariables());
-        String htmlContent = templateEngine.process(request.getTemplateName(), context);
+        context.setVariables(variables);
+        String htmlContent = templateEngine.process(mailTemplate.getTemplate(), context);
 
         MimeMessage message = javaMailSender.createMimeMessage();
 
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom(from);
-            helper.setTo(request.getTo());
-            helper.setSubject(request.getSubject());
+            helper.setTo(to);
+            helper.setSubject(mailTemplate.getSubject());
             helper.setText(htmlContent, true);
         } catch (MessagingException e) {
-            log.error("[errorMessage] : {}, [to] : {}, [from] : {}", e.getMessage(), request.getTo(), from);
+            log.error("[errorMessage] : {}, [to] : {}, [from] : {}", e.getMessage(), to, from);
         }
 
         try {
@@ -52,6 +60,20 @@ public class EmailService {
         } catch (MailException e) {
             throw new RuntimeException("메일 발송에 실패했습니다.");
         }
+    }
+
+    private Map<String, Object> createMapFromNonNullValues(Object... variables) {
+        Map<String, Object> map = new HashMap<>();
+
+        for (int i = 0; i < variables.length; i += 2) {
+            String key = (String) variables[i];
+            Object value = variables[i + 1];
+            if (value != null) {
+                map.put(key, value);
+            }
+        }
+
+        return map;
     }
 
 }
