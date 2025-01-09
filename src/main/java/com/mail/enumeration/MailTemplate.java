@@ -2,13 +2,14 @@ package com.mail.enumeration;
 
 import lombok.Getter;
 
+import java.util.Collections;
 import java.util.List;
 
 @Getter
 public enum MailTemplate {
 
-    JOIN("회원 가입을 축하합니다.", "가입 축하 메일", "/mail/join", List.of("/attachments/mail/join.txt", "/attachments/mail/join.pdf")),
-    LEAVE("회원 탈퇴가 정상 처리되었습니다.", "회원 탈퇴 안내 메일", "/mail/leave", null);
+    JOIN("회원 가입을 축하합니다.", "가입 축하 메일", "/mail/join", List.of("attachments/mail/join.txt", "attachments/mail/join.pdf")),
+    LEAVE("회원 탈퇴가 정상 처리되었습니다.", "회원 탈퇴 안내 메일", "/mail/leave", Collections.emptyList());
 
     private final String subject;
     private final String description;

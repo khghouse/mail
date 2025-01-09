@@ -7,6 +7,8 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -47,6 +49,19 @@ public class MailService {
             helper.setTo(to);
             helper.setSubject(mailTemplate.getSubject());
             helper.setText(htmlContent, true);
+
+            mailTemplate.getAttachments()
+                    .stream()
+                    .map(ClassPathResource::new)
+                    .filter(Resource::exists)
+                    .filter(Resource::isFile)
+                    .forEach(resource -> {
+                        try {
+                            helper.addAttachment(resource.getFilename(), resource);
+                        } catch (MessagingException e) {
+                            log.error("메일에 첨부파일을 추가하지 못했습니다. 파일명 : {}", resource.getFilename());
+                        }
+                    });
         } catch (MessagingException e) {
             log.error("[errorMessage] : {}, [to] : {}, [from] : {}", e.getMessage(), to, from);
         }
