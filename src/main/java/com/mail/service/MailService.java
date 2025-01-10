@@ -2,6 +2,7 @@ package com.mail.service;
 
 import com.mail.enumeration.MailTemplate;
 import com.mail.request.JoinMailRequest;
+import com.mail.request.LeaveMailRequest;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,10 @@ public class MailService {
     public void sendJoinMail(JoinMailRequest joinMailRequest) {
         Map<String, Object> variables = this.createMapFromNonNullValues("id", joinMailRequest.getId());
         this.send(MailTemplate.JOIN, joinMailRequest.getTo(), variables);
+    }
+
+    public void sendLeaveMail(LeaveMailRequest leaveMailRequest) {
+        this.send(MailTemplate.LEAVE, leaveMailRequest.getTo(), null);
     }
 
     private void send(MailTemplate mailTemplate, String to, Map<String, Object> variables) {

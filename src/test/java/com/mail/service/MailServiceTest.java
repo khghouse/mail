@@ -1,6 +1,7 @@
 package com.mail.service;
 
 import com.mail.request.JoinMailRequest;
+import com.mail.request.LeaveMailRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,20 +57,16 @@ public class MailServiceTest {
         mailService.sendJoinMail(request);
     }
 
-//    @Test
-//    @DisplayName("존재하지 않는 메일 템플릿 파일을 선택할 경우 예외가 발생한다.")
-//    void sendEmailNotTemplate() {
-//        // given
-//        String to = "khghouse@naver.com";
-//        String subject = "회원 가입을 축하합니다.";
-//        String template = EmailTemplate.JOIN.getTemplate() + "e";
-//        Map<String, Object> variables = Map.of("id", "khghouse");
-//
-//        EmailServiceRequest request = EmailServiceRequest.of(to, subject, template, variables);
-//
-//        // when, then
-//        assertThatThrownBy(() -> emailService.sendEmail(request))
-//                .isInstanceOf(TemplateInputException.class);
-//    }
+    @Test
+    @DisplayName("메일을 정상 발송한다.")
+    void sendLeaveMail() {
+        // given
+        String to = "khghouse@naver.com";
+
+        LeaveMailRequest request = LeaveMailRequest.of(to);
+
+        // when
+        mailService.sendLeaveMail(request);
+    }
 
 }
