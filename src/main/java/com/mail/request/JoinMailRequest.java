@@ -1,21 +1,23 @@
 package com.mail.request;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class JoinMailRequest {
 
-    private String to;
+    @Email
+    private String email;
+
+    @NotBlank(message = "회원 아이디를 입력해 주세요.")
     private String id;
 
-    public static JoinMailRequest of(String to, String id) {
-        JoinMailRequest request = new JoinMailRequest();
-        request.to = to;
-        request.id = id;
-        return request;
+    public JoinMailServiceRequest toServiceRequest() {
+        return JoinMailServiceRequest.of(email, id);
     }
 
 }

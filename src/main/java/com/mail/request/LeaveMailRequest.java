@@ -1,19 +1,19 @@
 package com.mail.request;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import lombok.*;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class LeaveMailRequest {
 
-    private String to;
+    @Email
+    private String email;
 
-    public static LeaveMailRequest of(String to) {
-        LeaveMailRequest request = new LeaveMailRequest();
-        request.to = to;
-        return request;
+    public LeaveMailServiceRequest toServiceRequest() {
+        return LeaveMailServiceRequest.of(email);
     }
 
 }

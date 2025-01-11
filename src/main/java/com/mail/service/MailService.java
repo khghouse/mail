@@ -1,8 +1,8 @@
 package com.mail.service;
 
 import com.mail.enumeration.MailTemplate;
-import com.mail.request.JoinMailRequest;
-import com.mail.request.LeaveMailRequest;
+import com.mail.request.JoinMailServiceRequest;
+import com.mail.request.LeaveMailServiceRequest;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -32,16 +32,16 @@ public class MailService {
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
 
-    public void sendJoinMail(JoinMailRequest joinMailRequest) {
-        Map<String, Object> variables = this.createMapFromNonNullValues("id", joinMailRequest.getId());
-        this.send(MailTemplate.JOIN, joinMailRequest.getTo(), variables);
+    public void sendJoinMail(JoinMailServiceRequest joinMailServiceRequest) {
+        Map<String, Object> variables = this.createMapFromNonNullValues("id", joinMailServiceRequest.getId());
+        this.send(MailTemplate.JOIN, joinMailServiceRequest.getEmail(), variables);
     }
 
-    public void sendLeaveMail(LeaveMailRequest leaveMailRequest) {
-        this.send(MailTemplate.LEAVE, leaveMailRequest.getTo(), null);
+    public void sendLeaveMail(LeaveMailServiceRequest leaveMailServiceRequest) {
+        this.send(MailTemplate.LEAVE, leaveMailServiceRequest.getEmail(), null);
     }
 
-    private void send(MailTemplate mailTemplate, String to, Map<String, Object> variables) {
+    private void send(MailTemplate mailTemplate, String email, Map<String, Object> variables) {
         Context context = new Context();
         context.setVariables(variables);
         String htmlContent = templateEngine.process(mailTemplate.getTemplate(), context);
@@ -51,7 +51,7 @@ public class MailService {
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom(from);
-            helper.setTo(to);
+            helper.setTo(email);
             helper.setSubject(mailTemplate.getSubject());
             helper.setText(htmlContent, true);
 
@@ -68,7 +68,7 @@ public class MailService {
                         }
                     });
         } catch (MessagingException e) {
-            log.error("[errorMessage] : {}, [to] : {}, [from] : {}", e.getMessage(), to, from);
+            log.error("[errorMessage] : {}, [to] : {}, [from] : {}", e.getMessage(), email, from);
         }
 
         try {

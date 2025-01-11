@@ -1,18 +1,15 @@
 package com.mail.service;
 
-import com.mail.request.JoinMailRequest;
-import com.mail.request.LeaveMailRequest;
+import com.mail.IntegrationTestSupport;
+import com.mail.request.JoinMailServiceRequest;
+import com.mail.request.LeaveMailServiceRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
-@ActiveProfiles("test")
-public class MailServiceTest {
+public class MailServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private MailService mailService;
@@ -21,10 +18,10 @@ public class MailServiceTest {
     @DisplayName("메일을 정상 발송한다.")
     void sendMail() {
         // given
-        String to = "khghouse@naver.com";
+        String email = "khghouse@naver.com";
         String id = "khghouse";
 
-        JoinMailRequest request = JoinMailRequest.of(to, id);
+        JoinMailServiceRequest request = JoinMailServiceRequest.of(email, id);
 
         // when
         mailService.sendJoinMail(request);
@@ -32,12 +29,12 @@ public class MailServiceTest {
 
     @Test
     @DisplayName("유효하지 않은 이메일 주소라면 예외가 발생한다.")
-    void sendMailInvalidTo() {
+    void sendMailInvalidEmail() {
         // given
-        String to = "khghouse@naver..com";
+        String email = "khghouse@naver..com";
         String id = "khghouse";
 
-        JoinMailRequest request = JoinMailRequest.of(to, id);
+        JoinMailServiceRequest request = JoinMailServiceRequest.of(email, id);
 
         // when, then
         assertThatThrownBy(() -> mailService.sendJoinMail(request))
@@ -49,9 +46,9 @@ public class MailServiceTest {
     @DisplayName("메일 템플릿 안, 변수가 바인딩 되지 않더라도 디폴트 값을 출력한다.")
     void sendMailNotVariables() {
         // given
-        String to = "khghouse@naver.com";
+        String email = "khghouse@naver.com";
 
-        JoinMailRequest request = JoinMailRequest.of(to, null);
+        JoinMailServiceRequest request = JoinMailServiceRequest.of(email, null);
 
         // when
         mailService.sendJoinMail(request);
@@ -61,9 +58,9 @@ public class MailServiceTest {
     @DisplayName("메일을 정상 발송한다.")
     void sendLeaveMail() {
         // given
-        String to = "khghouse@naver.com";
+        String email = "khghouse@naver.com";
 
-        LeaveMailRequest request = LeaveMailRequest.of(to);
+        LeaveMailServiceRequest request = LeaveMailServiceRequest.of(email);
 
         // when
         mailService.sendLeaveMail(request);

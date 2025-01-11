@@ -1,0 +1,16 @@
+### 가입 축하 메일 발송 API
+POST localhost:8080/mail/join
+Content-Type: application/json
+
+{
+  "to": "khghouse@naver.com",
+  "id": "khghouse"
+}
+
+### 회원 탈퇴 안내 메일 발송 API
+POST localhost:8080/mail/leave
+Content-Type: application/json
+
+{
+  "to": "khghouse@naver.com"
+}
