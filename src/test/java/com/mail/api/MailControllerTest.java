@@ -5,13 +5,25 @@ import com.mail.request.JoinMailRequest;
 import com.mail.request.LeaveMailRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class MailControllerTest extends ControllerTestSupport {
+
+    private static final String HMAC_ALGORITHM = "HmacSHA256";
+    private static final String HEADER_PREFIX = "HMAC-SHA256 Signature=";
+
+    @Value("${spring.mail.secret}")
+    private String secret;
 
     @Test
     @DisplayName("회원 가입 메일 발송을 요청하고 정상 응답한다.")
@@ -22,10 +34,13 @@ class MailControllerTest extends ControllerTestSupport {
                 .id("khghouse")
                 .build();
 
+        String data = objectMapper.writeValueAsString(request);
+
         // when, then
         mockMvc.perform(post("/mail/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .header(HttpHeaders.AUTHORIZATION, HEADER_PREFIX + generateHmac(data))
+                        .content(data))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -209,6 +224,15 @@ class MailControllerTest extends ControllerTestSupport {
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+    }
+
+    private String generateHmac(String data) throws Exception {
+        SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), HMAC_ALGORITHM);
+        Mac mac = Mac.getInstance(HMAC_ALGORITHM);
+        mac.init(secretKey);
+
+        byte[] hmacBytes = mac.doFinal(data.getBytes());
+        return Base64.getEncoder().encodeToString(hmacBytes);
     }
 
 }
