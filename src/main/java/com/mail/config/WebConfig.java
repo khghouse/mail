@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    private final HmacAuthInterceptor hmacAuthInterceptor;
+     private final HmacAuthInterceptor hmacAuthInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
