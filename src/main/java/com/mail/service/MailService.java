@@ -29,8 +29,12 @@ public class MailService {
     @Value("${spring.mail.username}")
     private String from;
 
+    @Value("${spring.application.name}")
+    private String applicationName;
+
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
+    private final SlackNotificationService slackNotificationService;
 
     public void sendJoinMail(JoinMailServiceRequest joinMailServiceRequest) {
         Map<String, Object> variables = this.createMapFromNonNullValues("id", joinMailServiceRequest.getId());
@@ -74,9 +78,11 @@ public class MailService {
         try {
             javaMailSender.send(message);
         } catch (MailAuthenticationException e) { // SMTP 서버 인증 실패
-            log.error("Authentication failed : " + e.getMessage());
-            throw new RuntimeException("SMTP 서버 인증에 실패했습니다.");
             // 관리자한테 알림
+            slackNotificationService.sendMessageToChannel("[" + applicationName + "] SMTP 서버 인증에 실패했습니다. -> " + e.getMessage());
+
+            log.error("[Exception] {} [Message] {}", e.getClass().getName(), e.getMessage());
+            throw new RuntimeException("SMTP 서버 인증에 실패했습니다.");
         } catch (MailException e) {
             throw new RuntimeException("메일 발송에 실패했습니다.");
         }

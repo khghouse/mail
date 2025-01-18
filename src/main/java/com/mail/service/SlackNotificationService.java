@@ -1,17 +1,18 @@
 package com.mail.service;
 
 import com.mail.enumeration.SlackChannel;
+import com.mail.response.SlackResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Map;
+
 @Service
 public class SlackNotificationService {
 
     private static final String HEADER_PREFIX = "Bearer ";
-
-    private final WebClient webClient;
 
     @Value("${slack.api.chat-post-url}")
     private String chatPostUrl;
@@ -19,22 +20,23 @@ public class SlackNotificationService {
     @Value("${slack.api.oauth-token}")
     private String oauthToken;
 
-    public SlackNotificationService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl(chatPostUrl)
-                .build();
-    }
-
     public void sendMessageToChannel(String message) {
-        webClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path(chatPostUrl)
-                        .queryParam("channel", SlackChannel.NOTIFICATION.getChannelId())
-                        .queryParam("text", message)
-                        .build()
-                )
-                .header(HttpHeaders.AUTHORIZATION, HEADER_PREFIX + oauthToken)
+        WebClient.builder()
+                .baseUrl(chatPostUrl)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, HEADER_PREFIX + oauthToken)
+                .build()
+                .post()
+                .bodyValue(Map.of(
+                        "channel", SlackChannel.NOTIFICATION.getChannelId(),
+                        "text", message
+                ))
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(SlackResponse.class)
+                .doOnNext(response -> {
+                    if (!response.isOk()) {
+                        throw new RuntimeException("Slack API Error: " + response);
+                    }
+                }).block();
     }
 
 }
