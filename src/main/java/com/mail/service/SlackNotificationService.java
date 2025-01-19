@@ -20,8 +20,8 @@ public class SlackNotificationService {
     @Value("${slack.api.oauth-token}")
     private String oauthToken;
 
-    public void sendMessageToChannel(String message) {
-        WebClient.builder()
+    public SlackResponse send(String message) {
+        return WebClient.builder()
                 .baseUrl(chatPostUrl)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, HEADER_PREFIX + oauthToken)
                 .build()
