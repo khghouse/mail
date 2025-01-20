@@ -34,7 +34,7 @@ public class MailService {
 
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
-    private final SlackNotificationService slackNotificationService;
+    private final SlackService slackService;
 
     public void sendJoinMail(JoinMailServiceRequest joinMailServiceRequest) {
         Map<String, Object> variables = this.createMapFromNonNullValues("id", joinMailServiceRequest.getId());
@@ -79,7 +79,7 @@ public class MailService {
             javaMailSender.send(message);
         } catch (MailAuthenticationException e) { // SMTP 서버 인증 실패
             // 관리자한테 알림
-            slackNotificationService.send("[" + applicationName + "] SMTP 서버 인증에 실패했습니다. -> " + e.getMessage());
+            slackService.send("[" + applicationName + "] SMTP 서버 인증에 실패했습니다. -> " + e.getMessage());
 
             log.error("[Exception] {} [Message] {}", e.getClass().getName(), e.getMessage());
             throw new RuntimeException("SMTP 서버 인증에 실패했습니다.");

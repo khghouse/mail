@@ -1,19 +1,16 @@
 package com.mail.enumeration;
 
+import com.mail.IntegrationTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@ActiveProfiles("test")
-class MailTemplateTest {
+class MailTemplateTest extends IntegrationTestSupport {
 
     @Test
     @DisplayName("메일 템플릿 파일이 실제 존재하는지 체크한다.")

@@ -2,6 +2,8 @@ package com.mail.service;
 
 import com.mail.IntegrationTestSupport;
 import com.mail.response.SlackResponse;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +12,25 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class SlackNotificationServiceTest extends IntegrationTestSupport {
+class SlackServiceTest extends IntegrationTestSupport {
 
     @Autowired
-    private SlackNotificationService slackNotificationService;
+    private SlackService slackService;
+
+    private String originalOauthToken;
+    private String originalChatPostUrl;
+
+    @BeforeEach
+    void setUp() {
+        originalOauthToken = (String) ReflectionTestUtils.getField(slackService, "oauthToken");
+        originalChatPostUrl = (String) ReflectionTestUtils.getField(slackService, "chatPostUrl");
+    }
+
+    @AfterEach
+    void tearDown() {
+        ReflectionTestUtils.setField(slackService, "oauthToken", originalOauthToken);
+        ReflectionTestUtils.setField(slackService, "chatPostUrl", originalChatPostUrl);
+    }
 
     @Test
     @DisplayName("슬랙 채널로 메시지를 발송한다.")
@@ -22,7 +39,7 @@ class SlackNotificationServiceTest extends IntegrationTestSupport {
         String message = "슬랙 채널로 발송하는 메시지입니다.";
 
         // when
-        SlackResponse response = slackNotificationService.send(message);
+        SlackResponse response = slackService.send(message);
 
         // then
         assertThat(response.isOk()).isTrue();
@@ -33,10 +50,10 @@ class SlackNotificationServiceTest extends IntegrationTestSupport {
     void sendInavlidAuth() {
         // given
         String message = "슬랙 채널로 발송하는 메시지입니다.";
-        ReflectionTestUtils.setField(slackNotificationService, "oauthToken", "invalidOauthToken");
+        ReflectionTestUtils.setField(slackService, "oauthToken", "invalidOauthToken");
 
         // when, then
-        assertThatThrownBy(() -> slackNotificationService.send(message))
+        assertThatThrownBy(() -> slackService.send(message))
                 .isInstanceOf(RuntimeException.class);
     }
 
@@ -45,10 +62,10 @@ class SlackNotificationServiceTest extends IntegrationTestSupport {
     void sendInvalidChatPostUrl() {
         // given
         String message = "슬랙 채널로 발송하는 메시지입니다.";
-        ReflectionTestUtils.setField(slackNotificationService, "chatPostUrl", "https://slack.com/invalid/url");
+        ReflectionTestUtils.setField(slackService, "chatPostUrl", "https://slack.com/invalid/url");
 
         // when, then
-        assertThatThrownBy(() -> slackNotificationService.send(message))
+        assertThatThrownBy(() -> slackService.send(message))
                 .isInstanceOf(RuntimeException.class);
     }
 

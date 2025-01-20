@@ -12,5 +12,5 @@ public enum SlackChannel {
     SlackChannel(String channelId) {
         this.channelId = channelId;
     }
-    
+
 }
