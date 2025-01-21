@@ -11,9 +11,9 @@ public class LeaveMailServiceRequest {
     private String email;
 
     public static LeaveMailServiceRequest of(String email) {
-        LeaveMailServiceRequest request = new LeaveMailServiceRequest();
-        request.email = email;
-        return request;
+        LeaveMailServiceRequest object = new LeaveMailServiceRequest();
+        object.email = email;
+        return object;
     }
 
 }

@@ -12,10 +12,10 @@ public class JoinMailServiceRequest {
     private String id;
 
     public static JoinMailServiceRequest of(String email, String id) {
-        JoinMailServiceRequest request = new JoinMailServiceRequest();
-        request.email = email;
-        request.id = id;
-        return request;
+        JoinMailServiceRequest object = new JoinMailServiceRequest();
+        object.email = email;
+        object.id = id;
+        return object;
     }
 
 }

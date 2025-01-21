@@ -1,6 +1,7 @@
 package com.mail.service;
 
 import com.mail.enumeration.MailTemplate;
+import com.mail.event.SmtpAuthenticationFailureEvent;
 import com.mail.request.JoinMailServiceRequest;
 import com.mail.request.LeaveMailServiceRequest;
 import jakarta.mail.MessagingException;
@@ -8,6 +9,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.mail.MailAuthenticationException;
@@ -34,7 +36,7 @@ public class MailService {
 
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
-    private final SlackService slackService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public void sendJoinMail(JoinMailServiceRequest joinMailServiceRequest) {
         Map<String, Object> variables = this.createMapFromNonNullValues("id", joinMailServiceRequest.getId());
@@ -79,7 +81,8 @@ public class MailService {
             javaMailSender.send(message);
         } catch (MailAuthenticationException e) { // SMTP 서버 인증 실패
             // 관리자한테 알림
-            slackService.send("[" + applicationName + "] SMTP 서버 인증에 실패했습니다. -> " + e.getMessage());
+            String errorMessage = "[" + applicationName + "] SMTP 서버 인증에 실패했습니다. -> " + e.getMessage();
+            eventPublisher.publishEvent(SmtpAuthenticationFailureEvent.create(errorMessage));
 
             log.error("[Exception] {} [Message] {}", e.getClass().getName(), e.getMessage());
             throw new RuntimeException("SMTP 서버 인증에 실패했습니다.");
