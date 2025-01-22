@@ -17,6 +17,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -38,6 +39,7 @@ public class MailService {
     private final TemplateEngine templateEngine;
     private final ApplicationEventPublisher eventPublisher;
 
+    @Transactional
     public void sendJoinMail(JoinMailServiceRequest joinMailServiceRequest) {
         Map<String, Object> variables = this.createMapFromNonNullValues("id", joinMailServiceRequest.getId());
         this.send(MailTemplate.JOIN, joinMailServiceRequest.getEmail(), variables);

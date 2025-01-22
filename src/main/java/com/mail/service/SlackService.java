@@ -2,6 +2,7 @@ package com.mail.service;
 
 import com.mail.enumeration.SlackChannel;
 import com.mail.response.SlackResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Map;
 
+@Slf4j
 @Service
 public class SlackService {
 
@@ -24,22 +26,27 @@ public class SlackService {
     private String conversationsInfoUrl;
 
     public SlackResponse send(String message) {
-        return WebClient.builder()
-                .baseUrl(chatPostUrl)
-                .defaultHeader(HttpHeaders.AUTHORIZATION, HEADER_PREFIX + oauthToken)
-                .build()
-                .post()
-                .bodyValue(Map.of(
-                        "channel", SlackChannel.NOTIFICATION.getChannelId(),
-                        "text", message
-                ))
-                .retrieve()
-                .bodyToMono(SlackResponse.class)
-                .doOnNext(response -> {
-                    if (!response.isOk()) {
-                        throw new RuntimeException("Slack API Error: " + response);
-                    }
-                }).block();
+        try {
+            return WebClient.builder()
+                    .baseUrl(chatPostUrl)
+                    .defaultHeader(HttpHeaders.AUTHORIZATION, HEADER_PREFIX + oauthToken)
+                    .build()
+                    .post()
+                    .bodyValue(Map.of(
+                            "channel", SlackChannel.NOTIFICATION.getChannelId(),
+                            "text", message
+                    ))
+                    .retrieve()
+                    .bodyToMono(SlackResponse.class)
+                    .doOnNext(response -> {
+                        if (!response.isOk()) {
+                            log.error("Slack API Error : " + response);
+                        }
+                    }).block();
+        } catch (Exception e) {
+            log.error("Slack API Error : " + e.getMessage());
+            return null;
+        }
     }
 
     public SlackResponse checkSlackChannel(String channel) {
@@ -56,7 +63,7 @@ public class SlackService {
                 .bodyToMono(SlackResponse.class)
                 .doOnNext(response -> {
                     if (!response.isOk()) {
-                        throw new RuntimeException("Slack API Error: " + response);
+                        log.error("Slack API Error : " + response);
                     }
                 }).block();
     }

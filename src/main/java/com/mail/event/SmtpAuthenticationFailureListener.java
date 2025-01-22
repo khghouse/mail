@@ -1,9 +1,9 @@
 package com.mail.event;
 
-import com.mail.response.SlackResponse;
 import com.mail.service.SlackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,9 +12,10 @@ public class SmtpAuthenticationFailureListener {
 
     private final SlackService slackService;
 
+    @Async
     @EventListener
-    public SlackResponse onSmtpAuthenticationFailure(SmtpAuthenticationFailureEvent event) {
-        return slackService.send(event.getErrorMessage());
+    public void onSmtpAuthenticationFailure(SmtpAuthenticationFailureEvent event) {
+        slackService.send(event.getErrorMessage());
     }
 
 }

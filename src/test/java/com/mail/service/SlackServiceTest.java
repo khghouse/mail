@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SlackServiceTest extends IntegrationTestSupport {
 
@@ -52,9 +51,11 @@ class SlackServiceTest extends IntegrationTestSupport {
         String message = "슬랙 채널로 발송하는 메시지입니다.";
         ReflectionTestUtils.setField(slackService, "oauthToken", "invalidOauthToken");
 
-        // when, then
-        assertThatThrownBy(() -> slackService.send(message))
-                .isInstanceOf(RuntimeException.class);
+        // when
+        SlackResponse slackResponse = slackService.send(message);
+
+        // then
+        assertThat(slackResponse.isOk()).isFalse();
     }
 
     @Test
@@ -64,9 +65,11 @@ class SlackServiceTest extends IntegrationTestSupport {
         String message = "슬랙 채널로 발송하는 메시지입니다.";
         ReflectionTestUtils.setField(slackService, "chatPostUrl", "https://slack.com/invalid/url");
 
-        // when, then
-        assertThatThrownBy(() -> slackService.send(message))
-                .isInstanceOf(RuntimeException.class);
+        // when
+        SlackResponse slackResponse = slackService.send(message);
+
+        // then
+        assertThat(slackResponse).isNull();
     }
 
 }
